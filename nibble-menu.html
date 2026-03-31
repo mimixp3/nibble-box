@@ -236,6 +236,24 @@ function getMenu() {
   window._lastResult = { name: firstName, menu: menu.title };
 }
 
+function downloadMenu() {
+  const btn = document.getElementById('dl-btn');
+  const card = document.querySelector('.result-card');
+  btn.textContent = 'saving...';
+  btn.disabled = true;
+  document.querySelector('.btn-row').style.display = 'none';
+  html2canvas(card, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
+    document.querySelector('.btn-row').style.display = '';
+    btn.textContent = '⬇ save as image';
+    btn.disabled = false;
+    const name = window._lastResult ? window._lastResult.name.toLowerCase() : 'nibble';
+    const link = document.createElement('a');
+    link.download = 'nibble-menu-' + name + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+}
+
 function resetForm() {
   document.getElementById('result').style.display = 'none';
   document.getElementById('form-block').style.display = 'block';
