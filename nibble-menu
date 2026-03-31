@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>nibble · your menu</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,500&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --green: #92b63c;
+    --green-dark: #6a8a28;
+    --green-light: #d6ecaa;
+    --green-pale: #f0f7df;
+    --bg: #f7faf0;
+    --surface: #ffffff;
+    --text: #1c2910;
+    --muted: #7a9040;
+    --border: #daeaa8;
+    --warm: #e07a3a;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1rem;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(circle 500px at 0% 0%, rgba(146,182,60,0.08), transparent),
+      radial-gradient(circle 400px at 100% 100%, rgba(146,182,60,0.06), transparent);
+    pointer-events: none; z-index: 0;
+  }
+  .container { position: relative; z-index: 1; width: 100%; max-width: 520px; }
+  header { text-align: center; margin-bottom: 2.5rem; animation: rise 0.5s ease both; }
+
+  .logo-wrap {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--green); color: white;
+    padding: 0.4rem 1.1rem; border-radius: 999px; margin-bottom: 1.4rem;
+  }
+  .logo-img-placeholder {
+    width: 22px; height: 22px; background: rgba(255,255,255,0.3);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 800;
+  }
+  .logo-wrap span { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.04em; }
+
+  h1 { font-family: 'Fraunces', serif; font-size: clamp(2rem, 7vw, 2.9rem); font-weight: 300; line-height: 1.15; margin-bottom: 0.6rem; }
+  h1 em { font-style: italic; color: var(--green); font-weight: 500; }
+  .subtitle { font-size: 0.82rem; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; }
+
+  #form-block { animation: rise 0.5s 0.1s ease both; }
+  .input-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 16px; padding: 1.5rem;
+    box-shadow: 0 4px 24px rgba(146,182,60,0.08);
+  }
+  .input-label { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 0.5rem; }
+  .input-row {
+    display: flex; align-items: center;
+    border: 1.5px solid var(--border); border-radius: 10px;
+    background: var(--green-pale); overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s; margin-bottom: 0.85rem;
+  }
+  .input-row:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(146,182,60,0.15); }
+  .leaf { padding: 0 0.75rem; font-size: 1.1rem; }
+  input[type="text"] {
+    background: transparent; border: none; outline: none;
+    color: var(--text); font-family: 'Nunito', sans-serif;
+    font-size: 1rem; font-weight: 600;
+    padding: 0.85rem 0.5rem 0.85rem 0; flex: 1;
+  }
+  input::placeholder { color: #b0c470; font-weight: 400; }
+  .get-btn {
+    width: 100%; padding: 0.85rem; background: var(--green);
+    color: white; border: none; border-radius: 10px;
+    font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 800;
+    cursor: pointer; letter-spacing: 0.03em;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .get-btn:hover { background: var(--green-dark); transform: translateY(-1px); }
+  .get-btn:active { transform: translateY(0); }
+
+  #result { display: none; animation: rise 0.5s ease both; }
+  .result-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 20px; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(146,182,60,0.10);
+  }
+  .result-header { background: var(--green); padding: 1.5rem 1.75rem 1.25rem; color: white; }
+  .result-for { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.75; margin-bottom: 0.3rem; }
+  .result-title { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 5vw, 1.9rem); font-weight: 500; line-height: 1.2; margin-bottom: 0.3rem; }
+  .result-vibe { font-size: 0.78rem; opacity: 0.8; font-style: italic; font-weight: 400; }
+  .result-body { padding: 1.5rem 1.75rem; }
+  .section-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; }
+  .menu-items { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem; }
+  .menu-item {
+    display: flex; gap: 0.85rem; align-items: center;
+    background: var(--green-pale); border-radius: 12px; padding: 0.75rem;
+  }
+  .item-img {
+    width: 52px; height: 52px; flex-shrink: 0; border-radius: 10px;
+    background: var(--green-light); border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center; font-size: 1.6rem;
+  }
+  .item-info { flex: 1; }
+  .item-name { font-weight: 800; font-size: 0.88rem; margin-bottom: 0.15rem; color: var(--text); }
+  .item-desc { font-size: 0.73rem; color: var(--muted); line-height: 1.45; margin-bottom: 0.3rem; }
+  .item-tag {
+    display: inline-block; font-size: 0.58rem; font-weight: 800;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.15rem 0.45rem; border-radius: 999px;
+    background: var(--green-light); color: var(--green-dark);
+  }
+  .item-tag.hot { background: #fde8da; color: var(--warm); }
+  .personality-box {
+    background: var(--green-pale); border-radius: 12px;
+    padding: 1rem 1.1rem; font-size: 0.8rem; line-height: 1.7;
+    color: #3a5010; margin-bottom: 1.25rem;
+  }
+  .personality-box strong { color: var(--green-dark); }
+  .btn-row { display: flex; gap: 0.6rem; }
+  .btn-copy {
+    flex: 1; padding: 0.65rem; background: var(--green);
+    color: white; border: none; border-radius: 10px;
+    font-family: 'Nunito', sans-serif; font-size: 0.75rem; font-weight: 800;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .btn-copy:hover { background: var(--green-dark); }
+  .btn-again {
+    flex: 1; padding: 0.65rem; background: transparent;
+    color: var(--muted); border: 1.5px solid var(--border); border-radius: 10px;
+    font-family: 'Nunito', sans-serif; font-size: 0.75rem; font-weight: 700;
+    cursor: pointer; transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-again:hover { border-color: var(--green); color: var(--green); }
+
+  footer { text-align: center; margin-top: 1.75rem; font-size: 0.68rem; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; animation: rise 0.5s 0.2s ease both; }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo-wrap">
+      <div class="logo-img-placeholder">n</div>
+      <span>nibble</span>
+    </div>
+    <h1>what's your<br><em>surplus menu</em> today?</h1>
+    <p class="subtitle">enter your name · get your personalised box</p>
+  </header>
+
+  <div id="form-block">
+    <div class="input-card">
+      <label class="input-label" for="nameInput">your name</label>
+      <div class="input-row">
+        <span class="leaf" style="color:var(--green);font-size:1rem;padding:0 0.75rem;">✦</span>
+        <input type="text" id="nameInput" placeholder="e.g. sara" maxlength="40" autocomplete="off" spellcheck="false" />
+      </div>
+      <button class="get-btn" onclick="getMenu()">get my nibble menu →</button>
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="result-card">
+      <div class="result-header">
+        <div class="result-for">todays pick for <span id="result-name-display"></span></div>
+        <div class="result-title" id="result-title">—</div>
+        <div class="result-vibe" id="result-vibe">—</div>
+      </div>
+      <div class="result-body">
+        <div class="section-label">your surplus menu</div>
+        <div class="menu-items" id="result-items"></div>
+        <div class="personality-box" id="result-personality"></div>
+        <div class="btn-row">
+          <button class="btn-copy" onclick="downloadMenu()" id="dl-btn">⬇ save as image</button>
+          <button class="btn-again" onclick="resetForm()">← try another name</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>no food wasted · by nibble</footer>
+</div>
+
+<script>
+const menus = [
+  { title: "Golden Hour Box", vibe: "warm, unhurried, a little indulgent", personality: "you take your time. you're the person who actually sits down to eat instead of inhaling food over a sink. nibble picked you something that rewards patience. <strong>slow mornings energy.</strong>", items: [ { emoji: "🥖", name: "Bakery Surplus Croissant", desc: "end-of-day from a local bakery. still flaky. still perfect.", tag: "fresh" }, { emoji: "🍋", name: "Citrus & Honey Yoghurt Pot", desc: "surplus fruit blended into greek yoghurt. too good to waste.", tag: "dairy" }, { emoji: "🍵", name: "Specialty Coffee Blend", desc: "beans from a roastery that over-ordered. your gain.", tag: "drink" } ] },
+  { title: "Midnight Snack Run", vibe: "chaotic, satisfying, no questions asked", personality: "you eat like you make decisions — fast and with conviction. no meal prep, no plan. nibble respects it. <strong>this box does not require cutlery.</strong>", items: [ { emoji: "🥪", name: "Last-Slice Pizza Parcel", desc: "surplus from a pizzeria that made too much. cold is valid.", tag: "hot", tagType: "hot" }, { emoji: "🥤", name: "Mixed Juice Pack", desc: "near-date juices from a grocery run. still fresh, almost gone.", tag: "drink" }, { emoji: "🍬", name: "Artisan Chocolate Offcuts", desc: "the bits that didn't make the box. they taste the same.", tag: "sweet" } ] },
+  { title: "Plant based Haul", vibe: "considered, earthy, quietly smug", personality: "you read ingredient lists. you have strong opinions about oat milk. nibble sees you and it respects you. <strong>the planet thanks you for eating this.</strong>", items: [ { emoji: "🥦", name: "Surplus Grain Bowl Kit", desc: "prepped veg and grains from a café that over-made lunch.", tag: "fresh" }, { emoji: "🥚", name: "Rescued Hummus & Dips", desc: "near-date but perfectly fine. eat with anything.", tag: "pantry" }, { emoji: "🥖", name: "Sourdough End Loaf", desc: "last of the batch from an artisan bakery. dense. worth it.", tag: "bakery" } ] },
+  { title: "Comfort Classics Box", vibe: "familiar, generous, no explanation needed", personality: "you know what you like and you like it every time. no experiments, no fusion. nibble gave you what you actually want. <strong>some things are classics for a reason.</strong>", items: [ { emoji: "🍜", name: "Pasta Surplus Pack", desc: "fresh pasta from a deli that made too much. ready in 3 minutes.", tag: "hot", tagType: "hot" }, { emoji: "🥛", name: "Cheese & Cracker Selection", desc: "near-date cheese board offcuts. still perfect.", tag: "dairy" }, { emoji: "🍯", name: "Custard Pot Rescue", desc: "end-of-day from a patisserie. silky. saved.", tag: "sweet" } ] },
+  { title: "Global Pantry Drop", vibe: "curious, adventurous, eats everything", personality: "you have hot sauce from four different countries and you use all of them. nibble picked you a box with some personality. <strong>your palate is not boring and neither is this.</strong>", items: [ { emoji: "🌮", name: "Surplus Wrap Kit", desc: "rescued fillings from a street food vendor. mix and match.", tag: "fresh" }, { emoji: "🍜", name: "Ramen Broth Pouch", desc: "restaurant over-batch. heat it up. deeply good.", tag: "hot", tagType: "hot" }, { emoji: "🍑", name: "Tropical Fruit Rescue Box", desc: "near-date but peak flavour. mango, papaya, guava.", tag: "fresh" } ] },
+  { title: "Sweet Tooth Rescue", vibe: "unapologetic, joyful, a little chaotic", personality: "you eat dessert first sometimes and you don't regret it. neither does nibble. <strong>this box is not a balanced meal and that's the point.</strong>", items: [ { emoji: "🍰", name: "Patisserie Offcut Box", desc: "the bits they couldn't sell whole. taste identical to full price.", tag: "sweet" }, { emoji: "🍧", name: "Ice Cream Surplus Pots", desc: "over-produced from a local creamery. flavour roulette.", tag: "cold" }, { emoji: "🧆", name: "Bakery Cookie Surplus", desc: "end-of-day mixed bag. crispy on the outside. exactly right.", tag: "sweet" } ] },
+  { title: "Busy Person's Box", vibe: "efficient, practical, still delicious", personality: "you eat between things. you've had lunch at 4pm before. nibble made you something that works whenever you get to it. <strong>no judgment. just food.</strong>", items: [ { emoji: "🌯", name: "Grab-and-Go Wrap Surplus", desc: "café overstocked. still sealed. eat at your desk.", tag: "fresh" }, { emoji: "🥤", name: "Smoothie Pouch Rescue", desc: "near-date from a juice bar. shake and drink.", tag: "drink" }, { emoji: "🍏", name: "Fruit Snack Bundle", desc: "surplus from a grocery depot. perfect pocket food.", tag: "fresh" } ] },
+  { title: "Chef's Surprise", vibe: "unpredictable, exciting, trust the process", personality: "you're the person who orders 'whatever the chef recommends'. nibble respects that energy deeply. <strong>you don't need to know what it is to know it'll be good.</strong>", items: [ { emoji: "🥘", name: "Mystery Kitchen Surplus", desc: "whatever a local restaurant over-prepared today. different every time.", tag: "hot", tagType: "hot" }, { emoji: "🍩", name: "Bakery Wild Card", desc: "end-of-day bake. could be anything. probably great.", tag: "sweet" }, { emoji: "🍵", name: "Artisan Drink Rescue", desc: "leftover specialty drinks from a café. a nice surprise.", tag: "drink" } ] }
+];
+
+function hashString(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) { hash = ((hash << 5) - hash) + str.charCodeAt(i); hash |= 0; }
+  return Math.abs(hash);
+}
+
+function getMenu() {
+  const raw = document.getElementById('nameInput').value.trim();
+  if (!raw) { document.getElementById('nameInput').focus(); return; }
+  const hash = hashString(raw.toLowerCase());
+  const menu = menus[hash % menus.length];
+  const firstName = raw.split(' ')[0];
+  document.getElementById('result-name-display').textContent = firstName;
+  document.getElementById('result-title').textContent = firstName + "'s " + menu.title;
+  document.getElementById('result-vibe').textContent = menu.vibe;
+  document.getElementById('result-personality').innerHTML = menu.personality;
+  const itemsEl = document.getElementById('result-items');
+  itemsEl.innerHTML = '';
+  menu.items.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'menu-item';
+    div.innerHTML = `<div class="item-img">${item.emoji}</div><div class="item-info"><div class="item-name">${item.name}</div><div class="item-desc">${item.desc}</div><span class="item-tag${item.tagType === 'hot' ? ' hot' : ''}">${item.tag}</span></div>`;
+    itemsEl.appendChild(div);
+  });
+  document.getElementById('form-block').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+  window._lastResult = { name: firstName, menu: menu.title };
+}
+
+function resetForm() {
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('form-block').style.display = 'block';
+  document.getElementById('nameInput').value = '';
+  document.getElementById('nameInput').focus();
+}
+
+document.getElementById('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter') getMenu(); });
+</script>
+</body>
+</html>
